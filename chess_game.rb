@@ -99,6 +99,12 @@ class History
     end
   end
 
+  def deep_dup
+    new_h = History.new
+    new_h.history = @history.deep_dup
+    new_h
+  end
+  private
   def movecolor(ind)
     ind.even? ? :white : :black
   end
@@ -110,10 +116,5 @@ class History
     translated_pos
   end
 
-  def deep_dup
-    new_h = History.new
-    new_h.history = @history.deep_dup
-    new_h
-  end
 
 end

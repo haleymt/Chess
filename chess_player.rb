@@ -47,6 +47,8 @@ class Player
     end
   end
 
+  private
+
   def read_char
     STDIN.echo = false
     STDIN.raw!

@@ -65,20 +65,6 @@ class Board
     return true
   end
 
-  def valid_moves_for(piece)
-    # puts "#{piece.pos[0]}, #{piece.pos[1]}"
-    valids = []
-    @board.each_with_index do |row, r_ind|
-      row.each_with_index do |tile, c_ind|
-        potential_move = [r_ind, c_ind]
-        # puts "#{potential_move.first}, #{potential_move.last}"
-        if valid_move?(piece.pos, potential_move, piece.color, false)
-          valids << potential_move
-        end
-      end
-    end
-    valids
-  end
 
   def move(start_pos, end_pos, color)
     # relies on game and valid_move to supply a good move
@@ -168,10 +154,6 @@ class Board
     @kings_position = {:black => [0,4], :white => [7,4]}
   end
 
-  def in_bounds?(pos)
-    pos.first.between?(0, 7) && pos.last.between?(0,7)
-  end
-
   def deep_dup
     new_board = Board.new
     new_board.kings_position = Marshal.load(Marshal.dump(@kings_position))
@@ -212,7 +194,7 @@ class Board
     end
     history_space
   end
-
+private
   def render_rules
     puts "----------------------------------------------------"
     puts "************** Welcome to Chess ********************"
@@ -234,7 +216,26 @@ class Board
     print "\n"
   end
 
+  def valid_moves_for(piece)
+    # puts "#{piece.pos[0]}, #{piece.pos[1]}"
+    valids = []
+    @board.each_with_index do |row, r_ind|
+      row.each_with_index do |tile, c_ind|
+        potential_move = [r_ind, c_ind]
+        # puts "#{potential_move.first}, #{potential_move.last}"
+        if valid_move?(piece.pos, potential_move, piece.color, false)
+          valids << potential_move
+        end
+      end
+    end
+    valids
+  end
+
   def history_space
     @history.show_history
+  end
+
+  def in_bounds?(pos)
+    pos.first.between?(0, 7) && pos.last.between?(0,7)
   end
 end

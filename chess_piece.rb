@@ -1,7 +1,7 @@
 class Piece
   attr_accessor :color, :pos
   attr_reader :symbol
-  
+
   def initialize( color, pos, symbol)
     @symbol = symbol
     @pos = pos
@@ -16,33 +16,35 @@ class Piece
     @color != other_color
   end
 
-  def diag_match?(p1, p2)
-    (p1[0] - p2[0]).abs == (p1[1] - p2[1]).abs
-  end
-
-  def row_match?(p1, p2)
-    p1[0] == p2[0]
-  end
-
-  def col_match?(p1, p2)
-    p1[1] == p2[1]
-  end
-
-  def add_pos(p1, p2)
-    [p1.first + p2.first, p1.last + p2.last]
-  end
-
-  def sub_pos(p1, p2)
-    [p2.first - p1.first, p2.last - p1.last]
-  end
-
-  def utf_symbol
-    raise NotImplementedError
-  end
-
   def display(back_c)
     print "  #{utf_symbol}  ".colorize(background: back_c, color: @color)
   end
+
+  private
+    def diag_match?(p1, p2)
+      (p1[0] - p2[0]).abs == (p1[1] - p2[1]).abs
+    end
+
+    def row_match?(p1, p2)
+      p1[0] == p2[0]
+    end
+
+    def col_match?(p1, p2)
+      p1[1] == p2[1]
+    end
+
+    def add_pos(p1, p2)
+      [p1.first + p2.first, p1.last + p2.last]
+    end
+
+    def sub_pos(p1, p2)
+      [p2.first - p1.first, p2.last - p1.last]
+    end
+
+    def utf_symbol
+      raise NotImplementedError
+    end
+
 
 end
 
