@@ -4,10 +4,12 @@ require_relative 'chess_specific.rb'
 require_relative 'chess_player.rb'
 require_relative 'exception_names.rb'
 
+require 'yaml'
 require 'colorize'
 require 'io/console'
 
 class Game
+  attr_accessor :players, :board, :message
   def initialize(player1, player2)
     @players = [player1, player2]
     @message = "Welcome! This is the chess chess chess"
@@ -30,9 +32,17 @@ class Game
 
       if move.first == 'save'
         save_game
-        exit(0)
+        puts 'exit (Y/n)?'
+        if(gets.chomp == 'n')
+          next
+        else
+          exit(0)
+        end
       elsif move.first == 'load'
-        self = load_game
+        new_gamestate = Game.load_game
+        @board = new_gamestate.board
+        @players = new_gamestate.players
+        @message = new_gamestate.message
         next
       end
 
@@ -63,7 +73,7 @@ class Game
     filename = 'chess' if filename.length < 1
     filename += '.yml' unless /.yml/ =~ filename
 
-    File.write(filename, self.to_yaml)
+    File.write(filename, YAML.dump(self))
   end
 
   def self.load_game
