@@ -30,8 +30,10 @@ class Game
 
       if move.first == 'save'
         save_game
+        exit(0)
       elsif move.first == 'load'
-        load_game
+        self = load_game
+        next
       end
 
       if move_into_check?(move.first, move.last, player.color)
@@ -56,18 +58,21 @@ class Game
   end
 
   def save_game
-    puts "what filename do you want to save as?"
-    filename = gets.chomp
-    if filename.length < 1
-      filename = 'chess'
-    end
-    filename += '.yml'
+    puts "what filename do you want to save as (default chess.yml)?"
+    filename = gets.chomp.gsub("\"", '')
+    filename = 'chess' if filename.length < 1
+    filename += '.yml' unless /.yml/ =~ filename
 
-    File.write()
+    File.write(filename, self.to_yaml)
   end
 
-  def load_game
+  def self.load_game
+    puts "load from what file (default chess.yml)?"
+    filename = gets.chomp.gsub("\"", '')
+    filename = 'chess' if filename.length < 1
+    filename += '.yml' unless /.yml/ =~ filename
 
+    YAML::load_file(filename)
   end
 end
 
