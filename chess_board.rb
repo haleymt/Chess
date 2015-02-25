@@ -14,7 +14,7 @@ class Array
 end
 
 class Board
-  attr_accessor :kings_position, :board
+  attr_accessor :kings_position, :board, :history
 
   CURSOR_DIR = {
     :up => [-1, 0],
@@ -24,6 +24,7 @@ class Board
   }
 
   def initialize
+    @history = History.new
     @cursor = [7, 0]
     @board = Array.new(8) { Array.new(8) }
     new_board
@@ -91,6 +92,7 @@ class Board
     self[end_pos] = piece
     piece.set_moved if piece.is_a?(Pawn)
     self[start_pos] = nil
+    @history.record(start_pos, end_pos)
   end
 
   def move_into_check?(start_p, end_p, mycolor)
@@ -174,6 +176,7 @@ class Board
     new_board = Board.new
     new_board.kings_position = Marshal.load(Marshal.dump(@kings_position))
     new_board.board = @board.deep_dup(new_board)
+    new_board.history = @history.deep_dup
     new_board
   end
 
@@ -188,6 +191,7 @@ class Board
 
   def display(message = nil)
     system('clear')
+    render_rules
     print "#{message}\n"
     @board.each_with_index do |row, row_index|
       print_blankrow(row_index)
@@ -206,6 +210,19 @@ class Board
       print "\n"
       print_blankrow(row_index)
     end
+    history_space
+  end
+
+  def render_rules
+    puts "----------------------------------------------------"
+    puts "************** Welcome to Chess ********************"
+    puts "----------------------------------------------------"
+    puts "Use the arrow keys to select a coordinate. "
+    puts "Hit space to select a start and end position"
+    puts "Enter: 's' to save"
+    puts "       'q' to quit"
+    puts "       'h' to toggle history"
+    puts "----------------------------------------------------"
   end
 
   def print_blankrow(r)
@@ -215,5 +232,9 @@ class Board
       print "     ".colorize(background: back_c)
     end
     print "\n"
+  end
+
+  def history_space
+    @history.show_history
   end
 end

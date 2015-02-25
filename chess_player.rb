@@ -10,8 +10,6 @@ class Player
   def get_move(board)
     move_array = []
     begin
-      puts "Use the arrow keys to select a coordinate. Hit space to select a start and end position"
-      puts "Enter 's' to save or 'l' to load"
       input = read_char
       case input
       when "\e[A" #up
@@ -24,12 +22,12 @@ class Player
         board.cursor_move(:left)
       when ' '
         move_array << board.get_cursor_position
+      when 'h'
+        return ['h']
       when 's'
         return ['save']
       when 'q'
         exit 0
-      when 'l'
-        return ['load']
       when "\u0003"
         exit 0
       else

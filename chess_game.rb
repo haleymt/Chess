@@ -9,10 +9,8 @@ require 'colorize'
 require 'io/console'
 
 class Game
-  attr_accessor :players, :board, :message
   def initialize(player1, player2)
     @players = [player1, player2]
-    @message = "Welcome! This is the chess chess chess"
   end
 
 
@@ -20,6 +18,7 @@ class Game
     @board = Board.new
     turns = 0
     checkmate = false
+    show_hist = false
     while !checkmate
       player = @players[turns%2]
       @message = "#{player.name}(#{player.color})'s turn to move"
@@ -34,11 +33,8 @@ class Game
         else
           exit(0)
         end
-      elsif move.first == 'load'
-        new_gamestate = Game.load_game
-        @board = new_gamestate.board
-        @players = new_gamestate.players
-        @message = new_gamestate.message
+      elsif move.first == 'h'
+        @board.history.shown = !@board.history.shown
         next
       end
 
@@ -82,16 +78,42 @@ class Game
 end
 
 class History
+  attr_accessor :history, :shown
   def initialize
     @history = []
+    @shown = false
   end
 
   def record(start_p, end_p)
-    @history << [start_p, end_p]
+    @history.unshift [start_p, end_p]
   end
 
   def show_history
-    puts @history
+    @history[0..9].each_with_index do |moves, index|
+      move_num = @history.size - index
+      start = translate(moves.first)
+      dest = translate(moves.last)
+      c = movecolor(index)
+      b = movecolor(index+1)
+      print "#{move_num}|#{start}  #{dest}|\n".colorize(color: c, background: b)
+    end
+  end
+
+  def movecolor(ind)
+    ind.even? ? :white : :black
+  end
+
+  def translate(position)
+    translated_pos = ""
+    translated_pos += ('A'..'H').to_a[position.last]
+    translated_pos += (7 - position.first).to_s
+    translated_pos
+  end
+
+  def deep_dup
+    new_h = History.new
+    new_h.history = @history.deep_dup
+    new_h
   end
 
 end
