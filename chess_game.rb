@@ -15,18 +15,14 @@ class Game
     @message = "Welcome! This is the chess chess chess"
   end
 
-  def move_into_check?(start_p, end_p, mycolor)
-    duped_board = @board.deep_dup
-    duped_board.move(start_p, end_p, mycolor)
-    duped_board.in_check?(mycolor)
-  end
 
   def run
     @board = Board.new
     turns = 0
-    while !checkmate?
+    checkmate = false
+    while !checkmate
       player = @players[turns%2]
-      @message = "#{player.name}'s turn to move"
+      @message = "#{player.name}(#{player.color})'s turn to move"
       display
       move = player.get_move(@board)
 
@@ -46,21 +42,20 @@ class Game
         next
       end
 
-      if move_into_check?(move.first, move.last, player.color)
-        @message = "Can't move yourself into check!"
-      else
-        @board.move(move.first, move.last, player.color)
-        if @board.in_check?(player.color)
-          @message = 'Check!'
+      @board.move(move.first, move.last, player.color)
+      other_player = @players[(turns + 1) % 2].color
+      if @board.in_check?(other_player)
+        if @board.checkmate?(other_player)
+          @message = "Checkmate! #{player.name}(#{player.color}) wins!"
+          checkmate = true
           display
+          next
         end
-        turns += 1
+        @message = 'Check!'
+        display
       end
+      turns += 1
     end
-  end
-
-  def checkmate?
-    false
   end
 
   def display

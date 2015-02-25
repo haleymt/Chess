@@ -1,6 +1,6 @@
 class Pawn < Piece
-  def initialize( color, pos, board)
-    super( color, pos, 'P')
+  def initialize(color, pos, board)
+    super(color, pos, 'P')
     @board = board
     @moved = false
     @v_dirs = {
@@ -42,8 +42,10 @@ class Pawn < Piece
     return (@moved && !(sub_pos(from, to).inject(&:+) > 1)) ? [any_move] : [any_move, first_move]
   end
 
-  def deep_dup
-    new_piece = Pawn.new(@color, @pos, @board)
+  def deep_dup(new_board)
+    new_piece = Pawn.new(@color, @pos, new_board)
+    new_piece.set_moved if @moved
+    new_piece
   end
 
   def utf_symbol
@@ -52,8 +54,8 @@ class Pawn < Piece
 end
 
 class Queen < SlidingPieces
-  def initialize( color, pos)
-      super( color, pos, 'Q')
+  def initialize(color, pos)
+    super(color, pos, 'Q')
   end
 
   def deep_dup

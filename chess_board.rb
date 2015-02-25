@@ -1,8 +1,13 @@
 class Array
-  def deep_dup
+  def deep_dup(new_board = nil)
     [].tap do |new_array|
       self.each do |el|
-        new_array << (el.is_a?(Piece) || el.is_a?(Array) ? el.deep_dup : el)
+        if el.is_a?(Pawn) || el.is_a?(Array)
+          duped_element = el.deep_dup(new_board)
+        else
+          duped_element = el.is_a?(Piece) ? el.deep_dup : el
+        end
+        new_array << (duped_element)
       end
     end
   end
@@ -10,22 +15,22 @@ end
 
 class Board
   attr_accessor :kings_position, :board
+
+  CURSOR_DIR = {
+    :up => [-1, 0],
+    :down => [1, 0],
+    :left => [0, -1],
+    :right => [0, 1]
+  }
+
   def initialize
-    @directions = {
-      :up => [-1,0],
-      :down => [1,0],
-      :left => [0,-1],
-      :right => [0,1]
-    }
-    @cursor = [7,0]
+    @cursor = [7, 0]
     @board = Array.new(8) { Array.new(8) }
-    #TODO initalize starting board
     new_board
-    # load_pieces(black_pieces, white_pieces) also for save/load
   end
 
   def [](array)
-    @board[array.first][array.last]
+    @board[array.first][array.last] if in_bounds?(array)
   end
 
   def []=(array, new_value)
@@ -49,6 +54,31 @@ class Board
     false
   end
 
+  def checkmate?(color)
+    #checks if color is in checkmate
+    each_piece do |piece|
+      if !piece.opposing_piece?(color) #piece of color
+        return false if valid_moves_for(piece).any?
+      end
+    end
+    return true
+  end
+
+  def valid_moves_for(piece)
+    # puts "#{piece.pos[0]}, #{piece.pos[1]}"
+    valids = []
+    @board.each_with_index do |row, r_ind|
+      row.each_with_index do |tile, c_ind|
+        potential_move = [r_ind, c_ind]
+        # puts "#{potential_move.first}, #{potential_move.last}"
+        if valid_move?(piece.pos, potential_move, piece.color, false)
+          valids << potential_move
+        end
+      end
+    end
+    valids
+  end
+
   def move(start_pos, end_pos, color)
     # relies on game and valid_move to supply a good move
     # executes good move
@@ -58,8 +88,15 @@ class Board
     if self[end_pos]
       self[end_pos].pos = nil
     end
-    self[end_pos] = self[start_pos]
+    self[end_pos] = piece
+    piece.set_moved if piece.is_a?(Pawn)
     self[start_pos] = nil
+  end
+
+  def move_into_check?(start_p, end_p, mycolor)
+    duped_board = self.deep_dup
+    duped_board.move(start_p, end_p, mycolor)
+    duped_board.in_check?(mycolor)
   end
 
   def valid_move?(start_pos, end_pos, color, redisplay = true)
@@ -86,6 +123,8 @@ class Board
     # - Is there something in the end_position and can we take it?
       raise BlockedMove unless self[end_pos].opposing_piece?(color)
     end
+
+    raise MovedIntoCheck if move_into_check?(start_pos, end_pos, color)
     true
   rescue ChessError => e
     display(e) if redisplay
@@ -105,6 +144,7 @@ class Board
         arr[ind] << Rook.new(inits.first, [inits.last,7])
       end
     end
+
     pawns = [[],[]].tap do |arr|
       [[:black,1],[:white,6]].each_with_index do |inits, ind|
         arr[ind] << Pawn.new(inits.first, [inits.last,0], self)
@@ -127,18 +167,18 @@ class Board
   end
 
   def in_bounds?(pos)
-    pos.first.between?(0,7) && pos.last.between?(0,7)
+    pos.first.between?(0, 7) && pos.last.between?(0,7)
   end
 
   def deep_dup
-    new_board = self.dup
+    new_board = Board.new
     new_board.kings_position = Marshal.load(Marshal.dump(@kings_position))
-    new_board.board = @board.deep_dup
+    new_board.board = @board.deep_dup(new_board)
     new_board
   end
 
   def cursor_move(dir)
-    new_cursor = [@cursor.first + @directions[dir].first, @cursor.last + @directions[dir].last]
+    new_cursor = [@cursor.first + CURSOR_DIR[dir].first, @cursor.last + CURSOR_DIR[dir].last]
     @cursor = new_cursor if in_bounds?(new_cursor)
   end
 
