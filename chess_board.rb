@@ -14,6 +14,7 @@ class Array
 end
 
 class Board
+  # draw
   attr_accessor :kings_position, :board, :history
 
   CURSOR_DIR = {
@@ -66,7 +67,7 @@ class Board
   end
 
 
-  def move(start_pos, end_pos, color)
+  def move(start_pos, end_pos, color, checkpromotion = true)
     # relies on game and valid_move to supply a good move
     # executes good move
     piece = self[start_pos]
@@ -77,13 +78,30 @@ class Board
     end
     self[end_pos] = piece
     piece.set_moved if piece.is_a?(Pawn)
+    if checkpromotion && promotions?(piece)
+      promote_piece(piece)
+    end
     self[start_pos] = nil
     @history.record(start_pos, end_pos)
   end
 
+  def promotions?(piece)
+    piece.is_a?(Pawn) && piece.promotable?
+  end
+
+  def promote_piece(old_piece)
+      puts "What would you like to promote your pawn to?"
+      puts "1 (Queen), 2 (Rook), 3 (Knight), 4 (Bishop), 5 (Pawn)"
+      new_piece = gets.chomp.to_i - 1
+      pieces = ["Queen", "Rook", "Knight", "Bishop", "Pawn"]
+      new_piece = Kernel.const_get(pieces[new_piece]).new(old_piece.color, old_piece.pos)
+      self[old_piece.pos] = new_piece
+      old_piece.pos = nil
+  end
+
   def move_into_check?(start_p, end_p, mycolor)
     duped_board = self.deep_dup
-    duped_board.move(start_p, end_p, mycolor)
+    duped_board.move(start_p, end_p, mycolor, false)
     duped_board.in_check?(mycolor)
   end
 

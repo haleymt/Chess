@@ -89,6 +89,7 @@ class History
   end
 
   def show_history
+    return unless @shown
     @history[0..9].each_with_index do |moves, index|
       move_num = @history.size - index
       start = translate(moves.first)

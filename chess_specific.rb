@@ -1,4 +1,6 @@
 class Pawn < Piece
+  # en passant
+  # promotion
   def initialize(color, pos, board)
     super(color, pos, 'P')
     @board = board
@@ -39,7 +41,13 @@ class Pawn < Piece
     return [] unless move_dir.include?(0)
     any_move = add_pos(@pos, @v_dirs[@color][1])
     first_move = add_pos(@pos, @v_dirs[@color][3])
-    return (@moved && !(sub_pos(from, to).inject(&:+) > 1)) ? [any_move] : [any_move, first_move]
+    move_distance = sub_pos(from, to).inject(&:+)
+    if @moved
+      return [any_move]
+    elsif move_distance == 2
+      return [any_move, first_move]
+    end
+    return [any_move]
   end
 
   def deep_dup(new_board)
@@ -50,6 +58,16 @@ class Pawn < Piece
 
   def utf_symbol
     color == :white ? "\u2659" : "\u265F"
+  end
+
+  def promotable?
+    if pos.first == 0  && @color == :white
+      true
+    elsif pos.first == 7 && @color == :black
+      true
+    else
+      false
+    end
   end
 end
 
@@ -69,6 +87,7 @@ class Queen < SlidingPieces
   def utf_symbol
     color == :white ? "\u2655" : "\u265B"
   end
+
 end
 
 class Rook < SlidingPieces
@@ -108,6 +127,7 @@ class Bishop < SlidingPieces
 end
 
 class King < SteppingPieces
+  # castle
   def initialize(color, pos)
     super( color, pos, '&')
     @dirs = [-1, 0, 1].permutation(2).to_a - [[0,0]] + [[1,1], [-1,-1]]
