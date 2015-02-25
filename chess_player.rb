@@ -25,12 +25,11 @@ class Player
       when ' '
         move_array << board.get_cursor_position
       when 's'
-        save_game
-        exit 0
+        return ['save']
       when 'q'
         exit 0
       when 'l'
-        load_game
+        return ['load']
       when "\u0003"
         exit 0
       else

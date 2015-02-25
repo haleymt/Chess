@@ -27,7 +27,7 @@ class Board
   def [](array)
     @board[array.first][array.last]
   end
-  
+
   def []=(array, new_value)
     @board[array.first][array.last] = new_value
   end
@@ -41,9 +41,12 @@ class Board
   end
 
   def in_check?(color)
-    each_piece.any? do |piece|
-      valid_move?(piece.pos, @kings_position[color])
+    each_piece do |piece|
+      if piece.opposing_piece?(color)
+        return true if valid_move?(piece.pos, @kings_position[color], piece.color, false)
+      end
     end
+    false
   end
 
   def move(start_pos, end_pos, color)
@@ -59,7 +62,7 @@ class Board
     self[start_pos] = nil
   end
 
-  def valid_move?(start_pos, end_pos, color)
+  def valid_move?(start_pos, end_pos, color, redisplay = true)
     return false if start_pos.nil? || end_pos.nil?
     # start_pos
     #  - is there a piece? board
@@ -81,11 +84,11 @@ class Board
     end
     if self[end_pos]
     # - Is there something in the end_position and can we take it?
-      raise BlockedMove if self[end_pos].opposing_piece?(color)
+      raise BlockedMove unless self[end_pos].opposing_piece?(color)
     end
     true
   rescue ChessError => e
-    puts e
+    display(e) if redisplay
     return false
   end
 
@@ -104,14 +107,14 @@ class Board
     end
     pawns = [[],[]].tap do |arr|
       [[:black,1],[:white,6]].each_with_index do |inits, ind|
-        arr[ind] << Pawn.new(inits.first, [inits.last,0])
-        arr[ind] << Pawn.new(inits.first, [inits.last,1])
-        arr[ind] << Pawn.new(inits.first, [inits.last,2])
-        arr[ind] << Pawn.new(inits.first, [inits.last,3])
-        arr[ind] << Pawn.new(inits.first, [inits.last,4])
-        arr[ind] << Pawn.new(inits.first, [inits.last,5])
-        arr[ind] << Pawn.new(inits.first, [inits.last,6])
-        arr[ind] << Pawn.new(inits.first, [inits.last,7])
+        arr[ind] << Pawn.new(inits.first, [inits.last,0], self)
+        arr[ind] << Pawn.new(inits.first, [inits.last,1], self)
+        arr[ind] << Pawn.new(inits.first, [inits.last,2], self)
+        arr[ind] << Pawn.new(inits.first, [inits.last,3], self)
+        arr[ind] << Pawn.new(inits.first, [inits.last,4], self)
+        arr[ind] << Pawn.new(inits.first, [inits.last,5], self)
+        arr[ind] << Pawn.new(inits.first, [inits.last,6], self)
+        arr[ind] << Pawn.new(inits.first, [inits.last,7], self)
       end
     end
 

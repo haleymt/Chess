@@ -6,9 +6,7 @@ require_relative 'exception_names.rb'
 
 require 'colorize'
 require 'io/console'
-#game logic
-#printing
-#save and load
+
 class Game
   def initialize(player1, player2)
     @players = [player1, player2]
@@ -25,17 +23,26 @@ class Game
     @board = Board.new
     turns = 0
     while !checkmate?
+      player = @players[turns%2]
+      @message = "#{player.name}'s turn to move"
       display
-      move = @players[turns%2].get_move(@board)
-      if move_into_check?(move.first, move.last, @players[turns%2].color)
+      move = player.get_move(@board)
+
+      if move.first == 'save'
+        save_game
+      elsif move.first == 'load'
+        load_game
+      end
+
+      if move_into_check?(move.first, move.last, player.color)
         @message = "Can't move yourself into check!"
       else
-        @board.move(move.first, move.last)
-        turns += 1
-        if @board.in_check?
+        @board.move(move.first, move.last, player.color)
+        if @board.in_check?(player.color)
           @message = 'Check!'
           display
         end
+        turns += 1
       end
     end
   end
@@ -46,6 +53,21 @@ class Game
 
   def display
     @board.display(@message)
+  end
+
+  def save_game
+    puts "what filename do you want to save as?"
+    filename = gets.chomp
+    if filename.length < 1
+      filename = 'chess'
+    end
+    filename += '.yml'
+
+    File.write()
+  end
+
+  def load_game
+
   end
 end
 
@@ -62,11 +84,4 @@ class History
     puts @history
   end
 
-end
-
-if __FILE__ == $PROGRAM_NAME
-  p1 = Player.new(:white, 'one')
-  p2 = Player.new(:black, 'two')
-  g = Game.new(p1,p2)
-  g.run
 end

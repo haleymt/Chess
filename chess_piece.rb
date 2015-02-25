@@ -12,7 +12,7 @@ class Piece
   end
 
   def opposing_piece?(other_color)
-    @color == other_color
+    @color != other_color
   end
 
   def diag_match?(p1, p2)
