@@ -37,7 +37,7 @@ class Player
       end
       raise NotEnoughElements
     rescue NotEnoughElements
-      board.display
+      board.display("#{name}'s turn to move'")
       if move_array.length < 2
         retry
       elsif board.valid_move?(move_array.first, move_array.last, @color)

@@ -150,19 +150,30 @@ class Board
     system('clear')
     print "#{message}\n"
     @board.each_with_index do |row, row_index|
+      print_blankrow(row_index)
       row.each_with_index do |tile, col_index|
         is_black = ((row_index + col_index) % 2 == 1)
-        back_c = is_black ? :yellow : :magenta
+        back_c = is_black ? :green : :magenta
         if @cursor == [row_index, col_index]
           back_c = :red
         end
         if tile
           tile.display(back_c)
         else
-          print "   ".colorize(background: back_c)
+          print "     ".colorize(background: back_c)
         end
       end
       print "\n"
+      print_blankrow(row_index)
     end
+  end
+
+  def print_blankrow(r)
+    (0..7).each do |i|
+      back_c = (i+r) % 2 == 1 ? :green : :magenta
+      back_c = :red if @cursor == [r, i]
+      print "     ".colorize(background: back_c)
+    end
+    print "\n"
   end
 end

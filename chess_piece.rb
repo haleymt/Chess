@@ -35,8 +35,12 @@ class Piece
     [p2.first - p1.first, p2.last - p1.last]
   end
 
+  def utf_symbol
+    raise NotImplementedError
+  end
+
   def display(back_c)
-    print " #{@symbol} ".colorize(background: back_c, color: @color)
+    print "  #{utf_symbol}  ".colorize(background: back_c, color: @color)
   end
 
 end

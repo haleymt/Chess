@@ -45,6 +45,10 @@ class Pawn < Piece
   def deep_dup
     new_piece = Pawn.new(@color, @pos, @board)
   end
+
+  def utf_symbol
+    color == :white ? "\u2659" : "\u265F"
+  end
 end
 
 class Queen < SlidingPieces
@@ -58,6 +62,10 @@ class Queen < SlidingPieces
 
   def valid_direction?(start_p, end_p)
     diag_match?(start_p, end_p) || row_match?(start_p, end_p) || col_match?(start_p, end_p)
+  end
+
+  def utf_symbol
+    color == :white ? "\u2655" : "\u265B"
   end
 end
 
@@ -73,6 +81,10 @@ class Rook < SlidingPieces
   def valid_direction?(start_p, end_p)
     row_match?(start_p, end_p) || col_match?(start_p, end_p)
   end
+
+  def utf_symbol
+    color == :white ? "\u2656" : "\u265C"
+  end
 end
 
 class Bishop < SlidingPieces
@@ -86,6 +98,10 @@ class Bishop < SlidingPieces
 
   def valid_direction?(start_p, end_p)
     diag_match?(start_p, end_p)
+  end
+
+  def utf_symbol
+    color == :white ? "\u2657" : "\u265D"
   end
 end
 
@@ -101,6 +117,9 @@ class King < SteppingPieces
     new_piece
   end
 
+  def utf_symbol
+    color == :white ? "\u2654" : "\u265A"
+  end
 end
 
 class Knight < SteppingPieces
@@ -124,4 +143,7 @@ class Knight < SteppingPieces
     new_piece
   end
 
+  def utf_symbol
+    color == :white ? "\u2658" : "\u265E"
+  end
 end
