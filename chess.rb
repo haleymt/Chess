@@ -2,9 +2,9 @@ require_relative 'chess_game.rb'
 require 'byebug'
 
 if __FILE__ == $PROGRAM_NAME
-  puts "New(N) or Start from saved file(s)?"
+  puts "New(N) or Start from saved file(L)?"
   option = gets.chomp
-  if /^s/=~ option.downcase
+  if /^l/=~ option.downcase
     g = Game.load_game
     g.run
   else

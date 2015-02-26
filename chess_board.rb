@@ -66,22 +66,40 @@ class Board
     return true
   end
 
+  def castle(kingp, kingpend, rookp, rookpend)
+    self[kingpend] = self[kingp]
+    self[kingpend].set_moved
+    self[rookpend] = self[rookp]
+    self[rookpend].set_moved
+    self[kingp] = nil
+    self[rookp] = nil
+  end
 
   def move(start_pos, end_pos, color, checkpromotion = true)
     # relies on game and valid_move to supply a good move
     # executes good move
-    piece = self[start_pos]
-    @kings_position[color] = end_pos if piece.symbol == '&'
-    piece.pos = end_pos
-    if self[end_pos]
-      self[end_pos].pos = nil
+    #castle
+    if is_castle?(start_pos, end_pos, color)
+      step = end_pos.last <=> start_pos.last
+      king_end = [start_pos.first, start_pos.last + (2 * step)]
+      @kings_position[color] = king_end
+      rook_end = [start_pos.first, start_pos.last + step]
+      castle(start_pos, king_end, end_pos, rook_end)
+    else
+      piece = self[start_pos]
+      piece.set_moved if piece.is_a?(Pawn) || piece.is_a?(King) || piece.is_a?(Rook)
+      @kings_position[color] = end_pos if piece.symbol == '&'
+      piece.pos = end_pos
+      if self[end_pos]
+        self[end_pos].pos = nil
+      end
+      self[end_pos] = piece
+      #promotion
+      if checkpromotion && promotions?(piece)
+        promote_piece(piece)
+      end
+      self[start_pos] = nil
     end
-    self[end_pos] = piece
-    piece.set_moved if piece.is_a?(Pawn)
-    if checkpromotion && promotions?(piece)
-      promote_piece(piece)
-    end
-    self[start_pos] = nil
     @history.record(start_pos, end_pos)
   end
 
@@ -90,13 +108,35 @@ class Board
   end
 
   def promote_piece(old_piece)
-      puts "What would you like to promote your pawn to?"
-      puts "1 (Queen), 2 (Rook), 3 (Knight), 4 (Bishop), 5 (Pawn)"
-      new_piece = gets.chomp.to_i - 1
-      pieces = ["Queen", "Rook", "Knight", "Bishop", "Pawn"]
-      new_piece = Kernel.const_get(pieces[new_piece]).new(old_piece.color, old_piece.pos)
-      self[old_piece.pos] = new_piece
-      old_piece.pos = nil
+    puts "What would you like to promote your pawn to?"
+    puts "1 (Queen), 2 (Rook), 3 (Knight), 4 (Bishop), 5 (Pawn)"
+
+    new_piece = gets.chomp.to_i - 1
+    pieces = ["Queen", "Rook", "Knight", "Bishop", "Pawn"]
+    new_piece = Kernel.const_get(pieces[new_piece]).new(old_piece.color, old_piece.pos)
+
+    self[old_piece.pos] = new_piece
+    old_piece.pos = nil
+  end
+
+  def is_castle?(sp, ep, color)
+    self[sp].is_a?(King) && self[ep].is_a?(Rook) && !self[sp].opposing_piece?(self[ep].color)
+  end
+
+  def castleable?(startp, endp, color)
+    not_moved = [startp, endp].all? {|x| !self[x].moved?}
+    betweens = []
+    if endp.last == 7
+      betweens << [startp.first, startp.last + 1]
+      betweens << [startp.first, startp.last + 2]
+    elsif endp.last == 0
+      betweens << [startp.first, startp.last - 1]
+      betweens << [startp.first, startp.last - 2]
+      betweens << [startp.first, startp.last - 3]
+    end
+    vacant = betweens.all? { |x| self[x].nil? }
+    line_safe = betweens[0..1].all? { |x| !move_into_check?(startp, x, color) }
+    return (not_moved && !in_check?(color) && vacant && line_safe)
   end
 
   def move_into_check?(start_p, end_p, mycolor)
@@ -115,6 +155,10 @@ class Board
     raise ThatsNotYours if piece.opposing_piece?(color)
     # - is it in bounds? board
     raise OutOfBoard unless in_bounds?(start_pos) && in_bounds?(end_pos)
+    #is it a castle?
+    if is_castle?(start_pos, end_pos, color) && castleable?(start_pos, end_pos, color)
+      return true
+    end
     # end_pos
     # - is the direction correct PIECE RESPONSIBLE
     raise InvalidMove unless piece.valid_direction?(start_pos, end_pos)

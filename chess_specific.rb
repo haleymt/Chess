@@ -1,6 +1,5 @@
 class Pawn < Piece
   # en passant
-  # promotion
   def initialize(color, pos, board)
     super(color, pos, 'P')
     @board = board
@@ -92,11 +91,20 @@ end
 
 class Rook < SlidingPieces
   def initialize( color, pos)
-      super( color, pos, 'R')
+    @moved = false
+    super( color, pos, 'R')
   end
 
   def deep_dup
-    new_piece = Rook.new(color, pos)
+    new_piece = dup
+  end
+
+  def set_moved
+    @moved = true
+  end
+
+  def moved?
+    @moved
   end
 
   def valid_direction?(start_p, end_p)
@@ -129,14 +137,23 @@ end
 class King < SteppingPieces
   # castle
   def initialize(color, pos)
+    @moved = false
     super( color, pos, '&')
     @dirs = [-1, 0, 1].permutation(2).to_a - [[0,0]] + [[1,1], [-1,-1]]
   end
 
   def deep_dup
-    new_piece = King.new(color, pos)
+    new_piece = dup
     new_piece.dirs = @dirs
     new_piece
+  end
+
+  def set_moved
+    @moved = true
+  end
+
+  def moved?
+    @moved
   end
 
   def utf_symbol

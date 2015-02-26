@@ -11,16 +11,19 @@ require 'io/console'
 class Game
   def initialize(player1, player2)
     @players = [player1, player2]
+    reset
   end
 
+  def reset
+    @board = Board.new
+    @turns = 0
+  end
 
   def run
-    @board = Board.new
-    turns = 0
     checkmate = false
     show_hist = false
     while !checkmate
-      player = @players[turns%2]
+      player = @players[@turns%2]
       @message = "#{player.name}(#{player.color})'s turn to move"
       display
       move = player.get_move(@board)
@@ -39,7 +42,7 @@ class Game
       end
 
       @board.move(move.first, move.last, player.color)
-      other_player = @players[(turns + 1) % 2].color
+      other_player = @players[(@turns + 1) % 2].color
       if @board.in_check?(other_player)
         if @board.checkmate?(other_player)
           @message = "Checkmate! #{player.name}(#{player.color}) wins!"
@@ -50,7 +53,7 @@ class Game
         @message = 'Check!'
         display
       end
-      turns += 1
+      @turns += 1
     end
   end
 
