@@ -19,7 +19,7 @@ class Game
     @turns = 0
   end
 
-  def run
+  def run #main target for refactoring
     checkmate = false
     show_hist = false
     while !checkmate

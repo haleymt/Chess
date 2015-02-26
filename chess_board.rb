@@ -197,14 +197,9 @@ class Board
 
     pawns = [[],[]].tap do |arr|
       [[:black,1],[:white,6]].each_with_index do |inits, ind|
-        arr[ind] << Pawn.new(inits.first, [inits.last,0], self)
-        arr[ind] << Pawn.new(inits.first, [inits.last,1], self)
-        arr[ind] << Pawn.new(inits.first, [inits.last,2], self)
-        arr[ind] << Pawn.new(inits.first, [inits.last,3], self)
-        arr[ind] << Pawn.new(inits.first, [inits.last,4], self)
-        arr[ind] << Pawn.new(inits.first, [inits.last,5], self)
-        arr[ind] << Pawn.new(inits.first, [inits.last,6], self)
-        arr[ind] << Pawn.new(inits.first, [inits.last,7], self)
+        (0..7).each do |col|
+          arr[ind] << Pawn.new(inits.first, [inits.last, col], self)
+        end
       end
     end
 
@@ -280,12 +275,10 @@ private
   end
 
   def valid_moves_for(piece)
-    # puts "#{piece.pos[0]}, #{piece.pos[1]}"
     valids = []
     @board.each_with_index do |row, r_ind|
       row.each_with_index do |tile, c_ind|
         potential_move = [r_ind, c_ind]
-        # puts "#{potential_move.first}, #{potential_move.last}"
         if valid_move?(piece.pos, potential_move, piece.color, false)
           valids << potential_move
         end
