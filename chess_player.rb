@@ -26,6 +26,8 @@ class Player
         return ['h']
       when 's'
         return ['save']
+      when 'r'
+        return ['reset']
       when 'q'
         exit 0
       when "\u0003"
@@ -46,9 +48,7 @@ class Player
       end
     end
   end
-
   private
-
   def read_char
     STDIN.echo = false
     STDIN.raw!
@@ -64,5 +64,4 @@ class Player
 
     return input
   end
-
 end

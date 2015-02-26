@@ -266,6 +266,7 @@ private
     puts "Enter: 's' to save"
     puts "       'q' to quit"
     puts "       'h' to toggle history"
+    puts "       'r' to reset game"
     puts "----------------------------------------------------"
   end
 

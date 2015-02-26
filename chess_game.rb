@@ -39,6 +39,13 @@ class Game
       elsif move.first == 'h'
         @board.history.shown = !@board.history.shown
         next
+      elsif move.first == 'reset'
+        puts 'YOU SURE?'
+        if gets.chomp == 'y'
+          reset
+          display
+        end
+        next
       end
 
       @board.move(move.first, move.last, player.color)
@@ -119,6 +126,4 @@ class History
     translated_pos += (7 - position.first).to_s
     translated_pos
   end
-
-
 end
