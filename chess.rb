@@ -1,5 +1,5 @@
 require_relative 'chess_game.rb'
-require 'byebug'
+#require 'byebug'
 
 if __FILE__ == $PROGRAM_NAME
   puts "New(N) or Start from saved file(L)?"
